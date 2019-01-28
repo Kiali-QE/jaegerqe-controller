@@ -13,7 +13,7 @@ import io.jaegertracing.qe.controller.mqtt.MqttUtils;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@RequestMapping("/spansreporter")
+@RequestMapping("/api/spansreporter")
 @Slf4j
 public class SpansController {
     private static final String DEFAULT_DESTINATION = "jaegerqe/spansreporter";
