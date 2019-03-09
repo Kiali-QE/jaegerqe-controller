@@ -27,8 +27,8 @@ public class SimpleCallback implements MqttCallback {
 
     @SuppressWarnings("unchecked")
     public void messageArrived(String topic, MqttMessage message) {
-        logger.info("Message received: [topic:{}, payload:{}, qos:{}]",
-                topic, new String(message.getPayload()), message.getQos());
+        logger.info("Message received: [topic:{}, payloadLength:{}, qos:{}]",
+                topic, message.getPayload().length, message.getQos());
         if (topic.startsWith(MqttUtils.TOPIC_ABOUT_REPORTER)) {
             Map<String, Object> data = (Map<String, Object>) SerializationUtils.deserialize(message.getPayload());
             ReporterNodeRepo.updateReporters(data);
