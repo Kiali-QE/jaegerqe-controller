@@ -6,6 +6,8 @@ import java.util.Map;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import io.jaegertracing.qe.controller.mqtt.MqttUtils;
+
 import lombok.extern.slf4j.Slf4j;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -19,22 +21,32 @@ public class ReporterNodeRepo {
 
     public static synchronized void updateReporters(Map<String, Object> map) {
         ReporterNode node = ReporterNode.get(map);
-        // check existing id from our local map
-        ReporterNode localNode = _DATA.get(node.getHostname());
-        if (localNode != null) {
-            // if reference different than earlier, remove it
-            if (localNode.getReference().equals(node.getReference())) {
-                node.setId(localNode.getId());
-            } else {
-                IdGenerator.remove(localNode.getReference(), localNode.getId());
+        boolean sendId = false;
+
+        // get next free id and assign it, if smaller than assigned
+        Integer nextAvailableId = IdGenerator.nextAvailableId(node.getReference());
+        if (node.getId() != null) {
+            if (node.getId() > nextAvailableId.intValue()) {
+                IdGenerator.remove(node.getReference(), node.getId());
+                node.setId(nextAvailableId);
+                sendId = true;
             }
+        } else {
+            // check existing id from our local map
+            ReporterNode localNode = _DATA.get(node.getHostname());
+            IdGenerator.remove(localNode.getReference(), localNode.getId());
         }
+
         // if id not set, generate it
         if (node.getId() == null) {
             node.setId(IdGenerator.generate(node.getReference()));
+            sendId = true;
         }
         _DATA.put(node.getHostname(), node);
         logger.debug("Reporter data received: {}", node);
+        if (sendId) {
+            MqttUtils.publish(MqttUtils.TOPIC_REPORTER_CONFIG, node.getMap(), 1);
+        }
     }
 
     @SuppressWarnings("unchecked")

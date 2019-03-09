@@ -18,14 +18,23 @@ public class IdGenerator {
         if (idList == null) {
             idList = new ArrayList<>();
         }
+        Integer id = nextAvailableId(key);
+        // add new id in to list
+        idList.add(id);
+        return id;
+    }
+
+    public static Integer nextAvailableId(String key) {
+        ArrayList<Integer> idList = _ID.get(key);
+        if (idList == null) {
+            idList = new ArrayList<>();
+        }
         _ID.put(key, idList);
         // check existing ids
         Integer id = 1;
         while (idList.contains(id)) {
             id++;
         }
-        // add new id in to list
-        idList.add(id);
         return id;
     }
 
