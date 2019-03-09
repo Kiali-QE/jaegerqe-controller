@@ -1,13 +1,12 @@
 package io.jaegertracing.qe.controller.reporter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class IdGenerator {
 
     private static final String _REF_GLOBAL = "global";
-    private static final Map<String, ArrayList<Integer>> _ID = new HashMap<>();
+    private static final ConcurrentHashMap<String, ArrayList<Integer>> _ID = new ConcurrentHashMap<>();
 
     public static void clear() {
         _ID.clear();// clear all the id's

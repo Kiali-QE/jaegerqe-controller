@@ -1,13 +1,13 @@
 package io.jaegertracing.qe.controller.reporter;
 
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import io.jaegertracing.qe.controller.mqtt.MqttUtils;
-
 import lombok.extern.slf4j.Slf4j;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Component
 public class ReporterNodeRepo {
 
-    private static final Map<String, ReporterNode> _DATA = new HashMap<>();
+    private static final ConcurrentHashMap<String, ReporterNode> _DATA = new ConcurrentHashMap<>();
 
     public static synchronized void updateReporters(Map<String, Object> map) {
         ReporterNode node = ReporterNode.get(map);
@@ -34,7 +34,7 @@ public class ReporterNodeRepo {
         } else {
             // check existing id from our local map
             ReporterNode localNode = _DATA.get(node.getHostname());
-            if(localNode != null){
+            if (localNode != null) {
                 IdGenerator.remove(localNode.getReference(), localNode.getId());
                 _DATA.remove(node.getHostname());
             }
@@ -52,15 +52,14 @@ public class ReporterNodeRepo {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    public static Map<String, ReporterNode> getRepoStatus() {
-        return (Map<String, ReporterNode>) ((HashMap<String, ReporterNode>) _DATA).clone();
+    public static Collection<ReporterNode> getRepoStatus() {
+        return _DATA.values();
     }
 
-    @Scheduled(fixedRate = 45 * 1000L)
+    @Scheduled(fixedRate = 35 * 1000L)
     private void removeDeadReporters() {
         // purge 40 seconds old reporter node details
-        long purgeTimestamp = System.currentTimeMillis() - (40 * 1000L);
+        long purgeTimestamp = System.currentTimeMillis() - (35 * 1000L);
         for (String nodeName : _DATA.keySet()) {
             ReporterNode node = _DATA.get(nodeName);
             if (node != null) {
