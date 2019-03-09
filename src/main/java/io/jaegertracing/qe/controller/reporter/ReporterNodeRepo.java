@@ -34,7 +34,10 @@ public class ReporterNodeRepo {
         } else {
             // check existing id from our local map
             ReporterNode localNode = _DATA.get(node.getHostname());
-            IdGenerator.remove(localNode.getReference(), localNode.getId());
+            if(localNode != null){
+                IdGenerator.remove(localNode.getReference(), localNode.getId());
+                _DATA.remove(node.getHostname());
+            }
         }
 
         // if id not set, generate it
