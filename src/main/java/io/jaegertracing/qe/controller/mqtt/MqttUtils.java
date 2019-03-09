@@ -9,7 +9,6 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.springframework.util.SerializationUtils;
 
 import io.jaegertracing.qe.controller.Utils;
-
 import io.jaegertracing.qe.controller.BeanUtil;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -19,6 +18,11 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MqttUtils {
     public static final String TOPIC_TEST = "jaegerqe/test";
+    public static final String TOPIC_SPAN_REPORTER = "jaegerqe/spansreporter";
+    public static final String TOPIC_SPAN_QUERY = "jaegerqe/spansquery";
+    public static final String TOPIC_ABOUT_REPORTER = "jaegerqe/aboutreporter";
+    public static final String TOPIC_REQ_CONFIG = "jaegerqe/reqconfig";
+    public static final String TOPIC_REPORTER_CONFIG = "jaegerqe/reporterconfig";
 
     private static MqttClient CLIENT;
 
@@ -56,7 +60,7 @@ public class MqttUtils {
             connOpts.setPassword(conf.getPassword().toCharArray());
             connOpts.setCleanSession(true);
             CLIENT.connect(connOpts);
-            subscribe(TOPIC_TEST + "/#");
+            subscribe(TOPIC_TEST + "/#", TOPIC_ABOUT_REPORTER + "/#");
             CLIENT.setCallback(new SimpleCallback());
         } catch (MqttException ex) {
             logger.error("Exception,", ex);
@@ -70,6 +74,8 @@ public class MqttUtils {
             } catch (MqttException ex) {
                 logger.error("Exception,", ex);
             }
+        } else {
+            logger.warn("Mqtt client not connected!");
         }
     }
 
