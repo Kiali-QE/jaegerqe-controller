@@ -1,4 +1,4 @@
-package io.jaegertracing.qe.controller.rest;
+package io.jaegertracing.qe.controller.handler;
 
 import java.util.Map;
 import java.util.UUID;
@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping("/api/spansquery")
 @Slf4j
-public class SpansQueryController {
+public class SpansQueryHandler {
     private static final String DEFAULT_DESTINATION = MqttUtils.TOPIC_SPAN_QUERY;
     private static final String KEY_DESTINATION = "destination";
     private static final String KEY_JOB_ID = "jobId";
